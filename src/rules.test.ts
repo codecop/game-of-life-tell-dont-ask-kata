@@ -1,4 +1,4 @@
-import { expect } from "chai";
+import { expect } from 'chai';
 
 function applyRules(cs: CellState, neighbourCount: number, cb: (nextCellState: CellState) => void) {
     // TODO finish, not related to TDA
