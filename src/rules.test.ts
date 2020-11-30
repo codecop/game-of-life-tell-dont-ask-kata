@@ -1,4 +1,4 @@
-import {expect} from 'chai';
+import { expect } from 'chai';
 
 function applyRules(cs: CellState, neighbourCount: number, cb: (nextCellState: CellState) => void) {
     // TODO finish, not related to TDA
@@ -47,7 +47,7 @@ describe('cell', () => {
 });
 
 class Grid {
-    private cells: Array<{x: number, y: number, cell: Cell}> = [];
+    private cells: Array<{ x: number, y: number, cell: Cell }> = [];
 
     public countLivingNeighboursAt(x: number, y: number, cb: (neighboursCount: number) => void) {
         let neighboursCount = 0;
@@ -58,15 +58,42 @@ class Grid {
                 }
             });
         });
+
+        // Wilde Idee: Kann ich eine filter-map Kette dual in den callback functions haben?
+        // // API like this?
+        // this.eachCell(cell.print |> execIf |> c == State.Alive |> inc)
+        // // ist das currying? API like this?
+        // this.eachCell(cell.print)(execIf)(isAlive)(inc)
+        //
+        // const _eachCell = (f: (cell: Cell) => void) => {
+        //     return (self: Grid) => self.eachCell((cell) => f(cell));
+        // };
+        // const _getCellState = (f: (cell: CellState) => void) => {
+        //     return (cell: Cell) => cell.print((cellState) => f(cellState));
+        // };
+        // const _ifCellAlive = (f: () => void) => {
+        //     return (cellState: CellState) => {
+        //         if (cellState === CellState.Alive) {
+        //             f();
+        //         }
+        //     };
+        // };
+        // const _inc = () => {
+        //     neighboursCount++;
+        // };
+        // // TODO Can we use currying on TDA?
+        // _eachCell(_getCellState(_ifCellAlive(_inc)))(this);
+        // // Explicit callbacks had any type, now TS is deriving the exact type for us.
+
         cb(neighboursCount);
     }
 
     public put(x: number, y: number, cell: Cell) {
-        this.cells.push({x, y, cell});
+        this.cells.push({ x, y, cell });
     }
 
     public eachCell(body: (c: Cell) => void) {
-        this.cells.forEach(({cell}) => body(cell));
+        this.cells.forEach(({ cell }) => body(cell));
     }
 }
 
