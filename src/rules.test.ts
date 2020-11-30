@@ -51,13 +51,7 @@ class Grid {
 
     public countLivingNeighboursAt(x: number, y: number, cb: (neighboursCount: number) => void) {
         let neighboursCount = 0;
-        this.eachCell((cell) => {
-            cell.print((cellState) => {
-                if (cellState === CellState.Alive) {
-                    neighboursCount++;
-                }
-            });
-        });
+        this.eachAliveCell(() => neighboursCount++);
 
         // Wilde Idee: Kann ich eine filter-map Kette dual in den callback functions haben?
         // // API like this?
@@ -95,6 +89,13 @@ class Grid {
     public eachCell(body: (c: Cell) => void) {
         this.cells.forEach(({ cell }) => body(cell));
     }
+    private eachAliveCell(body: (c: Cell) => void) {
+        this.cells.filter(({cell}) => {
+            let isAlive;
+            cell.print(cellState => isAlive = cellState === CellState.Alive);
+            return isAlive;
+        }).forEach(({ cell }) => body(cell));
+    }
 }
 
 describe('grid', () => {
@@ -130,7 +131,7 @@ describe('grid', () => {
         });
     });
 
-    it.skip('count two alive neighbors not in corner', (cb) => {
+    it('count two alive neighbors not in corner', (cb) => {
         const grid = new Grid();
         grid.put(0, 0, new Cell(CellState.Alive));
         grid.put(0, 1, new Cell(CellState.Alive));
