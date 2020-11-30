@@ -48,6 +48,7 @@ describe('cell', () => {
         cell.update(CellState.Alive);
         cell.execIfAlive(cb);
     });
+
     it('executes a callback if the cell is alive', (cb) => {
         const cell = new Cell(CellState.Alive);
         cell.execIfAlive(cb);
@@ -119,7 +120,7 @@ describe('grid', () => {
     });
 
     it('count single alive neighbors not in corner', (cb) => {
-        // 3.5. where do neighbours come from
+        // Continued where do neighbours come from
         const grid = new Grid();
         grid.put(0, 0, new Cell(CellState.Alive));
 
