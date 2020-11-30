@@ -32,6 +32,11 @@ class Cell {
         printer(this.state);
     }
 
+    execIfAlive(cb: () => void) {
+        if(this.state === CellState.Alive) {
+            cb()
+        }
+    }
 }
 
 describe('cell', () => {
@@ -43,6 +48,16 @@ describe('cell', () => {
             expect(nextCellState).to.equal(CellState.Dead);
             cb();
         });
+    });
+    it('executes a callback if the cell is alive', (cb) => {
+        const cell = new Cell(CellState.Alive);
+        cell.execIfAlive(cb)
+    });
+    it('executes a callback if the cell is dead', () => {
+        const cell = new Cell(CellState.Dead);
+        cell.execIfAlive(() => {
+            throw new Error();
+        })
     });
 });
 
