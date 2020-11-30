@@ -104,12 +104,8 @@ class Grid {
     public eachCell(body: (c: Cell) => void) {
         this.cells.forEach(({ cell }) => body(cell));
     }
-    private eachAliveCell(body: (c: Cell) => void) {
-        this.cells.filter(({cell}) => {
-            let isAlive;
-            cell.print(cellState => isAlive = cellState === CellState.Alive);
-            return isAlive;
-        }).forEach(({ cell }) => body(cell));
+    private eachAliveCell(cb: () => void) {
+        this.cells.forEach(({ cell }) => cell.execIfAlive(cb));
     }
 }
 
