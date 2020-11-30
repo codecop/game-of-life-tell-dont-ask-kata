@@ -47,11 +47,10 @@ describe('cell', () => {
 });
 
 class Grid {
-    private cell: Cell | null = null;
     private cells: Array<{x: number, y: number, cell: Cell}> = [];
 
     public countLivingNeighboursAt(x: number, y: number, cb: (neighboursCount: number) => void) {
-        if (this.cell == null) {
+        if (this.cells.length === 0) {
             cb(0);
             return;
         }
@@ -65,14 +64,11 @@ class Grid {
     }
 
     public put(x: number, y: number, cell: Cell) {
-        this.cell = cell;
         this.cells.push({x, y, cell});
     }
 
     public eachCell(body: (c: Cell) => void) {
-        if (this.cell) {
-            body(this.cell);
-        }
+        this.cells.forEach(({cell}) => body(cell));
     }
 }
 
