@@ -50,17 +50,15 @@ class Grid {
     private cells: Array<{x: number, y: number, cell: Cell}> = [];
 
     public countLivingNeighboursAt(x: number, y: number, cb: (neighboursCount: number) => void) {
-        if (this.cells.length === 0) {
-            cb(0);
-            return;
-        }
-
-        this.cells.forEach(({cell}) => {
+        let neighboursCount = 0;
+        this.eachCell((cell) => {
             cell.print((cellState) => {
-                const neighboursCount = cellState === CellState.Alive ? 1 : 0;
-                cb(neighboursCount);
+                if (cellState === CellState.Alive) {
+                    neighboursCount++;
+                }
             });
         });
+        cb(neighboursCount);
     }
 
     public put(x: number, y: number, cell: Cell) {
