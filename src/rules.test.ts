@@ -9,7 +9,7 @@ enum CellState {
     Alive, Dead,
 }
 
-describe('rules', function () {
+describe('rules', () => {
     it('a cell without neighbours dies', (cb) => {
         // 1. start rules
         applyRules(CellState.Alive, 0, (nextCellState) => {
@@ -34,7 +34,7 @@ class Cell {
 
 }
 
-describe('cell', function () {
+describe('cell', () => {
     it('a cell updates itself', (cb) => {
         // 2. what is callback for rules
         const cell = new Cell(CellState.Alive);
@@ -50,16 +50,15 @@ class Grid {
     private cell: Cell | null = null;
 
     public countLivingNeighboursAt(x: number, y: number, cb: (neighboursCount: number) => void) {
-        if(this.cell == null) {
+        if (this.cell == null) {
             cb(0);
             return;
         }
 
-        this.cell.print(cellState => {
+        this.cell.print((cellState) => {
             const neighboursCount = cellState === CellState.Alive ? 1 : 0;
             cb(neighboursCount);
-        })
-
+        });
     }
 
     public put(x: number, y: number, cell: Cell) {
@@ -73,7 +72,7 @@ class Grid {
     }
 }
 
-describe('grid', function () {
+describe('grid', () => {
 
     it('counts neighbours in empty grid', (cb) => {
         // 3. where do neighbours come from
@@ -84,17 +83,17 @@ describe('grid', function () {
             cb();
         });
     });
+
     it('count alive neighbors not in corner', (cb) => {
         // 3.5. where do neighbours come from
         const grid = new Grid();
-        grid.put(0,0, new Cell(CellState.Alive))
+        grid.put(0, 0, new Cell(CellState.Alive));
 
         grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
             expect(neighboursCount).to.equal(1);
             cb();
         });
     });
-
 
     it('grid should contain cells', (cb) => {
         // 4. what is callback of countNeighboursAt
