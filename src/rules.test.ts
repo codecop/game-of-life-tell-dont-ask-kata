@@ -48,6 +48,7 @@ describe('cell', () => {
 
 class Grid {
     private cell: Cell | null = null;
+    private cells: Array<{x: number, y: number, cell: Cell}> = [];
 
     public countLivingNeighboursAt(x: number, y: number, cb: (neighboursCount: number) => void) {
         if (this.cell == null) {
@@ -55,14 +56,17 @@ class Grid {
             return;
         }
 
-        this.cell.print((cellState) => {
-            const neighboursCount = cellState === CellState.Alive ? 1 : 0;
-            cb(neighboursCount);
+        this.cells.forEach(({cell}) => {
+            cell.print((cellState) => {
+                const neighboursCount = cellState === CellState.Alive ? 1 : 0;
+                cb(neighboursCount);
+            });
         });
     }
 
     public put(x: number, y: number, cell: Cell) {
         this.cell = cell;
+        this.cells.push({x, y, cell});
     }
 
     public eachCell(body: (c: Cell) => void) {
@@ -84,13 +88,34 @@ describe('grid', () => {
         });
     });
 
-    it('count alive neighbors not in corner', (cb) => {
+    it('count single alive neighbors not in corner', (cb) => {
         // 3.5. where do neighbours come from
         const grid = new Grid();
         grid.put(0, 0, new Cell(CellState.Alive));
 
         grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
             expect(neighboursCount).to.equal(1);
+            cb();
+        });
+    });
+
+    it('do not count dead neighbors not in corner', (cb) => {
+        const grid = new Grid();
+        grid.put(0, 0, new Cell(CellState.Dead));
+
+        grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
+            expect(neighboursCount).to.equal(0);
+            cb();
+        });
+    });
+
+    it.skip('count two alive neighbors not in corner', (cb) => {
+        const grid = new Grid();
+        grid.put(0, 0, new Cell(CellState.Alive));
+        grid.put(0, 1, new Cell(CellState.Alive));
+
+        grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
+            expect(neighboursCount).to.equal(2);
             cb();
         });
     });
