@@ -28,9 +28,11 @@ class Cell {
         this.state = newState;
     }
 
-    public print(printer: (nextCellState: CellState) => void) {
-        printer(this.state);
-    }
+    // public print(printer: (nextCellState: CellState) => void) {
+    //     // only used for test
+    //     // we don't want to expose internal state - not even through callbacks.
+    //     printer(this.state);
+    // }
 
     execIfAlive(cb: () => void) {
         if(this.state === CellState.Alive) {
@@ -42,12 +44,9 @@ class Cell {
 describe('cell', () => {
     it('a cell updates itself', (cb) => {
         // 2. what is callback for rules
-        const cell = new Cell(CellState.Alive);
-        cell.update(CellState.Dead);
-        cell.print((nextCellState) => {
-            expect(nextCellState).to.equal(CellState.Dead);
-            cb();
-        });
+        const cell = new Cell(CellState.Dead);
+        cell.update(CellState.Alive);
+        cell.execIfAlive(cb);
     });
     it('executes a callback if the cell is alive', (cb) => {
         const cell = new Cell(CellState.Alive);
@@ -101,9 +100,6 @@ class Grid {
         this.cells.push({ x, y, cell });
     }
 
-    public eachCell(body: (c: Cell) => void) {
-        this.cells.forEach(({ cell }) => body(cell));
-    }
     private eachAliveCell(cb: () => void) {
         this.cells.forEach(({ cell }) => cell.execIfAlive(cb));
     }
@@ -153,15 +149,5 @@ describe('grid', () => {
         });
     });
 
-    it('grid should contain cells', (cb) => {
-        // 4. what is callback of countNeighboursAt
-        const grid = new Grid();
-        const cell = new Cell(CellState.Alive);
-        grid.put(0, 0, cell);
-
-        grid.eachCell((c) => {
-            expect(c).to.deep.equal(cell);
-            cb();
-        });
-    });
+    // 4. what is callback of countNeighboursAt
 });
