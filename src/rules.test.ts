@@ -1,12 +1,12 @@
-import { expect } from 'chai';
-
-function applyRules(cs: CellState, neighbourCount: number, cb: (nextCellState: CellState) => void) {
-    // TODO finish, not related to TDA
-    cb(CellState.Dead);
-}
+import {expect} from 'chai';
 
 enum CellState {
     Alive, Dead,
+}
+
+function applyRules(cs: CellState, neighbourCount: number, cb: (nextCellState: CellState) => void): void {
+    // TODO finish, not related to TDA
+    cb(CellState.Dead);
 }
 
 describe('rules', () => {
@@ -24,7 +24,7 @@ class Cell {
     constructor(private state: CellState) {
     }
 
-    public update(newState: CellState) {
+    public update(newState: CellState): void {
         this.state = newState;
     }
 
@@ -34,7 +34,7 @@ class Cell {
     //     printer(this.state);
     // }
 
-    public execIfAlive(cb: () => void) {
+    public execIfAlive(cb: () => void): void {
         if (this.state === CellState.Alive) {
             cb();
         }
@@ -63,9 +63,9 @@ describe('cell', () => {
 });
 
 class Grid {
-    private cells: Array<{ x: number, y: number, cell: Cell }> = [];
+    private cells: Array<{ x: number; y: number; cell: Cell }> = [];
 
-    public countLivingNeighboursAt(x: number, y: number, cb: (neighboursCount: number) => void) {
+    public countLivingNeighboursAt(x: number, y: number, cb: (neighboursCount: number) => void): void {
         let neighboursCount = 0;
         this.eachAliveCell(() => neighboursCount++);
 
@@ -98,12 +98,12 @@ class Grid {
         cb(neighboursCount);
     }
 
-    public put(x: number, y: number, cell: Cell) {
-        this.cells.push({ x, y, cell });
+    public put(x: number, y: number, cell: Cell): void {
+        this.cells.push({x, y, cell});
     }
 
-    private eachAliveCell(cb: () => void) {
-        this.cells.forEach(({ cell }) => cell.execIfAlive(cb));
+    private eachAliveCell(cb: () => void): void {
+        this.cells.forEach(({cell}) => cell.execIfAlive(cb));
     }
 }
 
