@@ -22,6 +22,7 @@ describe('rules (1. start rules)', () => {
     // TODO more tests, not related to TDA
 });
 
+// Column manages state of cell.
 class Column {
     constructor(private state: Cell) {
     }
@@ -38,6 +39,7 @@ class Column {
         }
     }
 
+    // Teil von filter alive
     public execIfAlive(cb: () => void): void {
         if (this.state === Cell.Alive) {
             cb();
@@ -72,6 +74,7 @@ describe('cell (2. callback for rules)', () => {
     // finished
 });
 
+// Row manages list of Columns and delegates to columns. = First Class Collection
 class Row {
     private columns: Column[] = [];
 
@@ -106,6 +109,7 @@ class Row {
     }
 }
 
+// Grid manages list of Rows and delegates to rows. = First Class Collection
 class Grid {
 
     private rows: Row[] = [];
@@ -118,33 +122,10 @@ class Grid {
 
     public countLivingNeighboursAt(x: number, y: number, cb: (neighboursCount: number) => void): void {
         let neighboursCount = 0;
-        this.eachAliveCellAround(x, y, () => neighboursCount++);
 
-        // Wilde Idee: Kann ich eine filter-map Kette dual in den callback functions haben?
-        // // API like this?
-        // this.eachCell(cell.print |> execIf |> c == State.Alive |> inc)
-        // // ist das currying? API like this?
-        // this.eachCell(cell.print)(execIf)(isAlive)(inc)
-        //
-        // const _eachCell = (f: (cell: Cell) => void) => {
-        //     return (self: Grid) => self.eachCell((cell) => f(cell));
-        // };
-        // const _getcell = (f: (cell: cell) => void) => {
-        //     return (cell: Cell) => cell.print((cell) => f(cell));
-        // };
-        // const _ifCellAlive = (f: () => void) => {
-        //     return (cell: cell) => {
-        //         if (cell === cell.Alive) {
-        //             f();
-        //         }
-        //     };
-        // };
-        // const _inc = () => {
-        //     neighboursCount++;
-        // };
-        // // TODO Can we use currying on TDA?
-        // _eachCell(_getcell(_ifCellAlive(_inc)))(this);
-        // // Explicit callbacks had any type, now TS is deriving the exact type for us.
+        this.rows[y - 1]?.eachLiveCellInBounds(x, () => neighboursCount++);
+        this.rows[y].eachLiveCellAround(x, () => neighboursCount++);
+        this.rows[y + 1]?.eachLiveCellInBounds(x, () => neighboursCount++);
 
         cb(neighboursCount);
     }
@@ -164,11 +145,6 @@ class Grid {
         this.rows[y].applyRules(x, count);
     }
 
-    private eachAliveCellAround(x: number, y: number, cb: () => void): void {
-        this.rows[y - 1]?.eachLiveCellInBounds(x, cb);
-        this.rows[y].eachLiveCellAround(x, cb);
-        this.rows[y + 1]?.eachLiveCellInBounds(x, cb);
-    }
 }
 
 describe('grid (3. countNeighbours will be used in rules)', () => {
@@ -307,3 +283,11 @@ describe('Game (callback for countNeighboursAt)', () => {
         });
     });
 });
+
+// TODO bug in final test?
+
+// TODO Counter Objeckt statt Callback bei Nachbar zählen
+// Idee: Statt Callback bei isAlive einfach den Counter übergeben
+// -> weniger Callback, weniger generisch, mehr Kommplung
+
+// TODO alle Callbacks prüfen ob wir sie brauchen
