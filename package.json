@@ -5,6 +5,7 @@
   "author": "Charles Ahmadzadeh <superzadeh@outlook.com>",
   "scripts": {
     "test": "npm run lint && npm run compile && cross-env NODE_ENV=test jest",
+    "test-only": "cross-env NODE_ENV=test jest",
     "test:ci": "npm run test --ci --maxWorkers=2 --verbose --coverage",
     "test:cover": "npm run test --coverage",
     "test:changed": "npm run test --watch",
