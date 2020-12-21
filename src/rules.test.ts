@@ -1,4 +1,4 @@
-import {expect} from 'chai';
+import { expect } from 'chai';
 
 enum Cell {
     Alive, Dead,
@@ -29,11 +29,13 @@ class Column {
         this.state = newState;
     }
 
-    // public print(printer: (nextcell: cell) => void) {
-    //     // only used for test
-    //     // we don't want to expose internal state - not even through callbacks.
-    //     printer(this.state);
-    // }
+    public print(cb: (output: string) => void) {
+        if (this.state === Cell.Alive) {
+            cb('X');
+        } else {
+            cb(' ');
+        }
+    }
 
     public execIfAlive(cb: () => void): void {
         if (this.state === Cell.Alive) {
@@ -69,7 +71,7 @@ class Row {
     private columns: Column[] = [];
 
     constructor(length: number) {
-        for(let i=0; i< length; i++) {
+        for (let i = 0; i < length; i++) {
             this.columns.push(new Column(Cell.Dead));
         }
     }
@@ -84,8 +86,14 @@ class Row {
     }
 
     public eachLiveCellAround(x: number, cb: () => void): void {
-        this.columns[x-1].execIfAlive(cb);
-        this.columns[x+1].execIfAlive(cb);
+        this.columns[x - 1].execIfAlive(cb);
+        this.columns[x + 1].execIfAlive(cb);
+    }
+
+    public print(cb: (output: string) => void) {
+        this.columns.forEach(cell => {
+            cell.print(cb);
+        });
     }
 }
 
@@ -94,7 +102,7 @@ class Grid {
     private rows: Row[] = [];
 
     constructor(sizeX: number, sizeY: number) {
-        for(let i=0; i< sizeY; i++) {
+        for (let i = 0; i < sizeY; i++) {
             this.rows.push(new Row(sizeX));
         }
     }
@@ -132,14 +140,21 @@ class Grid {
         cb(neighboursCount);
     }
 
-    public put(x: number, y: number, cell: Cell): void {
+    public update(x: number, y: number, cell: Cell): void {
         this.rows[y].update(x, cell);
     }
 
+    public print(cb: (output: string) => void) {
+        this.rows.forEach(row => {
+            row.print(cb);
+            cb('\n');
+        });
+    }
+
     private eachAliveCellAround(x: number, y: number, cb: () => void): void {
-        this.rows[y-1].eachLiveCellInBounds(x, cb);
+        this.rows[y - 1].eachLiveCellInBounds(x, cb);
         this.rows[y].eachLiveCellAround(x, cb);
-        this.rows[y+1].eachLiveCellInBounds(x, cb);
+        this.rows[y + 1].eachLiveCellInBounds(x, cb);
     }
 }
 
@@ -157,7 +172,7 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
     it('count single alive neighbors not in corner', (cb) => {
         // Continued where do neighbours come from
         const grid = new Grid(3, 3);
-        grid.put(0, 0, Cell.Alive);
+        grid.update(0, 0, Cell.Alive);
 
         grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
             expect(neighboursCount).to.equal(1);
@@ -176,8 +191,8 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
 
     it('count two alive neighbors not in corner', (cb) => {
         const grid = new Grid(3, 3);
-        grid.put(0, 0, Cell.Alive);
-        grid.put(0, 1, Cell.Alive);
+        grid.update(0, 0, Cell.Alive);
+        grid.update(0, 1, Cell.Alive);
 
         grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
             expect(neighboursCount).to.equal(2);
@@ -187,7 +202,7 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
 
     it('count zero alive neighbours with other alive cells not near', (cb) => {
         const grid = new Grid(4, 4);
-        grid.put(0, 0, Cell.Alive);
+        grid.update(0, 0, Cell.Alive);
 
         grid.countLivingNeighboursAt(2, 2, (neighboursCount: number) => {
             expect(neighboursCount).to.equal(0);
@@ -197,7 +212,7 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
 
     it('count not itself', (cb) => {
         const grid = new Grid(3, 3);
-        grid.put(1, 1, Cell.Alive);
+        grid.update(1, 1, Cell.Alive);
 
         grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
             expect(neighboursCount).to.equal(0);
@@ -208,39 +223,41 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
     // TODO handle overflow
 });
 
-// class Game {
-//     private grid = new Grid();
-//
-//     public seed(x: number, y: number): void {
-//         this.grid.put(x, y, cell.Alive);
-//     }
-//
-//     // public print(leftX: number, upperY: number, rightX: number, lowerY: number, cb: (output: string) => void): void {
-//     //     let output = '';
-//     //     for (let y = lowerY; y < upperY; y++) {
-//     //         for (let x = leftX; x < rightX; x++) {
-//     //             this.grid.print(x, y, (character) => output += character);
-//     //         }
-//     //         output += '\n';
-//     //     }
-//     //     cb(output);
-//     // }
-// }
+class Game {
+    private grid: Grid;
 
-// describe('(callback for countNeighboursAt)', () => {
-    // it('prints the board', cb => {
-        // const game = new Game();
-        // game.seed(1, 0);
-        // game.seed(1, 1);
-        // game.seed(1, 2);
-        //
-        // game.print(0, 0, 3, 3, output => {
-        //     expect(output).equals(
-        //         ' X \n' +
-        //         ' X \n' +
-        //         ' X \n'
-        //     );
-        //     cb();
-        // });
-    // });
-// });
+    constructor(grid: Grid) {
+        this.grid = grid;
+    }
+
+    public seed(x: number, y: number): void {
+        this.grid.update(x, y, Cell.Alive);
+    }
+
+    public print(cb: (output: string) => void): void {
+        let output = '';
+
+        this.grid.print( (append) => output += append);
+
+        cb(output);
+    }
+}
+
+describe('Game (callback for countNeighboursAt)', () => {
+    it('prints the board', cb => {
+        const grid = new Grid(3, 3);
+        const game = new Game(grid);
+        game.seed(1, 0);
+        game.seed(1, 1);
+        game.seed(1, 2);
+
+        game.print(output => {
+            expect(output).equals(
+                ' X \n' +
+                ' X \n' +
+                ' X \n'
+            );
+            cb();
+        });
+    });
+});
