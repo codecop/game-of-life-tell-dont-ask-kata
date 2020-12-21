@@ -87,6 +87,10 @@ class Row {
             this.cells.push(new Cell(CellState.Dead));
         }
     }
+
+    public update(x: number, cellState: CellState) {
+        this.cells[x].update(cellState);
+    }
 }
 
 class Grid {
@@ -132,6 +136,9 @@ class Grid {
     }
 
     public put(x: number, y: number, cell: Cell): void {
+        cell.execIfAlive(() => {
+            this.rows[y].update(x, CellState.Alive);
+        });
         this.cells.push(new PositionAwareCell(x, y, cell));
     }
 
