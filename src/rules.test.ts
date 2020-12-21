@@ -5,11 +5,11 @@ enum CellState {
 }
 
 function applyRules(cs: CellState, neighbourCount: number, cb: (nextCellState: CellState) => void): void {
-    // TODO finish, not related to TDA
     cb(CellState.Dead);
 }
 
 describe('rules (1. start rules)', () => {
+
     it('a cell without neighbours dies', (cb) => {
 
         applyRules(CellState.Alive, 0, (nextCellState) => {
@@ -17,6 +17,7 @@ describe('rules (1. start rules)', () => {
             cb();
         });
     });
+
     // TODO more tests, not related to TDA
 });
 
@@ -42,6 +43,7 @@ class Cell {
 }
 
 describe('cell (2. callback for rules)', () => {
+
     it('a cell updates itself', (cb) => {
         const cell = new Cell(CellState.Dead);
         cell.update(CellState.Alive);
@@ -59,6 +61,8 @@ describe('cell (2. callback for rules)', () => {
             throw new Error();
         });
     });
+
+    // finished
 });
 
 class PositionAwareCell {
@@ -184,6 +188,7 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
         });
     });
 
+    // counting neighbours is finished
 });
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
