@@ -1,19 +1,19 @@
 import {expect} from 'chai';
 
-enum CellState {
+enum Cell {
     Alive, Dead,
 }
 
-function applyRules(cs: CellState, neighbourCount: number, cb: (nextCellState: CellState) => void): void {
-    cb(CellState.Dead);
+function applyRules(cs: Cell, neighbourCount: number, cb: (nextcell: Cell) => void): void {
+    cb(Cell.Dead);
 }
 
 describe('rules (1. start rules)', () => {
 
     it('a cell without neighbours dies', (cb) => {
 
-        applyRules(CellState.Alive, 0, (nextCellState) => {
-            expect(nextCellState).to.equal(CellState.Dead);
+        applyRules(Cell.Alive, 0, (nextcell) => {
+            expect(nextcell).to.equal(Cell.Dead);
             cb();
         });
     });
@@ -21,22 +21,22 @@ describe('rules (1. start rules)', () => {
     // TODO more tests, not related to TDA
 });
 
-class Cell {
-    constructor(private state: CellState) {
+class Column {
+    constructor(private state: Cell) {
     }
 
-    public update(newState: CellState): void {
+    public update(newState: Cell): void {
         this.state = newState;
     }
 
-    // public print(printer: (nextCellState: CellState) => void) {
+    // public print(printer: (nextcell: cell) => void) {
     //     // only used for test
     //     // we don't want to expose internal state - not even through callbacks.
     //     printer(this.state);
     // }
 
     public execIfAlive(cb: () => void): void {
-        if (this.state === CellState.Alive) {
+        if (this.state === Cell.Alive) {
             cb();
         }
     }
@@ -45,18 +45,18 @@ class Cell {
 describe('cell (2. callback for rules)', () => {
 
     it('a cell updates itself', (cb) => {
-        const cell = new Cell(CellState.Dead);
-        cell.update(CellState.Alive);
+        const cell = new Column(Cell.Dead);
+        cell.update(Cell.Alive);
         cell.execIfAlive(cb);
     });
 
     it('executes a callback if the cell is alive', (cb) => {
-        const cell = new Cell(CellState.Alive);
+        const cell = new Column(Cell.Alive);
         cell.execIfAlive(cb);
     });
 
     it('executes a callback if the cell is dead', () => {
-        const cell = new Cell(CellState.Dead);
+        const cell = new Column(Cell.Dead);
         cell.execIfAlive(() => {
             throw new Error();
         });
@@ -66,26 +66,26 @@ describe('cell (2. callback for rules)', () => {
 });
 
 class Row {
-    private cells: Cell[] = [];
+    private columns: Column[] = [];
 
     constructor(length: number) {
         for(let i=0; i< length; i++) {
-            this.cells.push(new Cell(CellState.Dead));
+            this.columns.push(new Column(Cell.Dead));
         }
     }
 
-    public update(x: number, cellState: CellState): void {
-        this.cells[x].update(cellState);
+    public update(x: number, cell: Cell): void {
+        this.columns[x].update(cell);
     }
 
     public eachLiveCellInBounds(x: number, cb: () => void): void {
-        this.cells[x].execIfAlive(cb);
+        this.columns[x].execIfAlive(cb);
         this.eachLiveCellAround(x, cb);
     }
 
     public eachLiveCellAround(x: number, cb: () => void): void {
-        this.cells[x-1].execIfAlive(cb);
-        this.cells[x+1].execIfAlive(cb);
+        this.columns[x-1].execIfAlive(cb);
+        this.columns[x+1].execIfAlive(cb);
     }
 }
 
@@ -112,12 +112,12 @@ class Grid {
         // const _eachCell = (f: (cell: Cell) => void) => {
         //     return (self: Grid) => self.eachCell((cell) => f(cell));
         // };
-        // const _getCellState = (f: (cell: CellState) => void) => {
-        //     return (cell: Cell) => cell.print((cellState) => f(cellState));
+        // const _getcell = (f: (cell: cell) => void) => {
+        //     return (cell: Cell) => cell.print((cell) => f(cell));
         // };
         // const _ifCellAlive = (f: () => void) => {
-        //     return (cellState: CellState) => {
-        //         if (cellState === CellState.Alive) {
+        //     return (cell: cell) => {
+        //         if (cell === cell.Alive) {
         //             f();
         //         }
         //     };
@@ -126,14 +126,14 @@ class Grid {
         //     neighboursCount++;
         // };
         // // TODO Can we use currying on TDA?
-        // _eachCell(_getCellState(_ifCellAlive(_inc)))(this);
+        // _eachCell(_getcell(_ifCellAlive(_inc)))(this);
         // // Explicit callbacks had any type, now TS is deriving the exact type for us.
 
         cb(neighboursCount);
     }
 
-    public put(x: number, y: number, cellState: CellState): void {
-        this.rows[y].update(x, cellState);
+    public put(x: number, y: number, cell: Cell): void {
+        this.rows[y].update(x, cell);
     }
 
     private eachAliveCellAround(x: number, y: number, cb: () => void): void {
@@ -157,7 +157,7 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
     it('count single alive neighbors not in corner', (cb) => {
         // Continued where do neighbours come from
         const grid = new Grid(3, 3);
-        grid.put(0, 0, CellState.Alive);
+        grid.put(0, 0, Cell.Alive);
 
         grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
             expect(neighboursCount).to.equal(1);
@@ -176,8 +176,8 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
 
     it('count two alive neighbors not in corner', (cb) => {
         const grid = new Grid(3, 3);
-        grid.put(0, 0, CellState.Alive);
-        grid.put(0, 1, CellState.Alive);
+        grid.put(0, 0, Cell.Alive);
+        grid.put(0, 1, Cell.Alive);
 
         grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
             expect(neighboursCount).to.equal(2);
@@ -187,7 +187,7 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
 
     it('count zero alive neighbours with other alive cells not near', (cb) => {
         const grid = new Grid(4, 4);
-        grid.put(0, 0, CellState.Alive);
+        grid.put(0, 0, Cell.Alive);
 
         grid.countLivingNeighboursAt(2, 2, (neighboursCount: number) => {
             expect(neighboursCount).to.equal(0);
@@ -197,7 +197,7 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
 
     it('count not itself', (cb) => {
         const grid = new Grid(3, 3);
-        grid.put(1, 1, CellState.Alive);
+        grid.put(1, 1, Cell.Alive);
 
         grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
             expect(neighboursCount).to.equal(0);
@@ -212,7 +212,7 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
 //     private grid = new Grid();
 //
 //     public seed(x: number, y: number): void {
-//         this.grid.put(x, y, CellState.Alive);
+//         this.grid.put(x, y, cell.Alive);
 //     }
 //
 //     // public print(leftX: number, upperY: number, rightX: number, lowerY: number, cb: (output: string) => void): void {
