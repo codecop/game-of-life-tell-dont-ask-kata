@@ -42,6 +42,10 @@ class Column {
             cb();
         }
     }
+
+    public applyRules(count: number) {
+        applyRules(this.state, count, (newState) => this.state = newState);
+    }
 }
 
 describe('cell (2. callback for rules)', () => {
@@ -94,6 +98,10 @@ class Row {
         this.columns.forEach(cell => {
             cell.print(cb);
         });
+    }
+
+    public applyRules(x: number, count: number) {
+        this.columns[x].applyRules(count);
     }
 }
 
@@ -149,6 +157,10 @@ class Grid {
             row.print(cb);
             cb('\n');
         });
+    }
+
+    public applyRules(x: number, y: number, count: number): void {
+        this.rows[y].applyRules(x, count);
     }
 
     private eachAliveCellAround(x: number, y: number, cb: () => void): void {
@@ -226,8 +238,8 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
 class Game {
     private grid: Grid;
 
-    constructor(grid: Grid) {
-        this.grid = grid;
+    constructor(private sizeX: number, private sizeY: number) {
+        this.grid = new Grid(sizeX, sizeY);
     }
 
     public seed(x: number, y: number): void {
@@ -235,13 +247,18 @@ class Game {
     }
 
     public tick() {
-        this.grid.forEachCoordinate((x, y) => {
-            this.grid.countLivingNeighboursAt(x, y, (count) => {
-                applyRules(state, count, (newCellState) => {
-                    this.grid.update(x, y, newCellState);
+        const newGrid = new Grid(this.sizeX, this.sizeY);
+
+        for (let y = 0; y < this.sizeY; y++) {
+            for (let x = 0; x < this.sizeX; x++) {
+
+                this.grid.countLivingNeighboursAt(x, y, (count) => {
+                    newGrid.applyRules(x, y, count);
                 });
-            });
-        });
+            }
+        }
+
+        this.grid = newGrid;
     }
 
     public print(cb: (output: string) => void): void {
@@ -256,8 +273,7 @@ class Game {
 
 describe('Game (callback for countNeighboursAt)', () => {
     it('prints the board', cb => {
-        const grid = new Grid(3, 3);
-        const game = new Game(grid);
+        const game = new Game(3, 3);
         game.seed(1, 0);
         game.seed(1, 1);
         game.seed(1, 2);
@@ -273,8 +289,7 @@ describe('Game (callback for countNeighboursAt)', () => {
     });
 
     it('iterates the board', cb => {
-        const grid = new Grid(3, 3);
-        const game = new Game(grid);
+        const game = new Game(3, 3);
         game.seed(1, 0);
         game.seed(1, 1);
         game.seed(1, 2);
