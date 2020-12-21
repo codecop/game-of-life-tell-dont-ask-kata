@@ -91,6 +91,17 @@ class Row {
     public update(x: number, cellState: CellState) {
         this.cells[x].update(cellState);
     }
+
+    public eachLiveCellInBounds(x: number, cb: () => void): void {
+        this.cells[x-1].execIfAlive(cb);
+        this.cells[x].execIfAlive(cb);
+        this.cells[x+1].execIfAlive(cb);
+    }
+
+    public eachLiveCellAround(x: number, cb: () => void): void {
+        this.cells[x-1].execIfAlive(cb);
+        this.cells[x+1].execIfAlive(cb);
+    }
 }
 
 class Grid {
@@ -143,8 +154,9 @@ class Grid {
     }
 
     private eachAliveCellAround(x: number, y: number, cb: () => void): void {
-        this.cells.forEach(cell =>
-            cell.execIfNear(x, y, cell => cell.execIfAlive(cb)));
+        this.rows[y-1].eachLiveCellInBounds(x, cb);
+        this.rows[y].eachLiveCellAround(x, cb);
+        this.rows[y+1].eachLiveCellInBounds(x, cb);
     }
 }
 
@@ -202,10 +214,10 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
     });
 
     it('count not itself', (cb) => {
-        const grid = new Grid(2, 2);
-        grid.put(0, 0, new Cell(CellState.Alive));
+        const grid = new Grid(3, 3);
+        grid.put(1, 1, new Cell(CellState.Alive));
 
-        grid.countLivingNeighboursAt(0, 0, (neighboursCount: number) => {
+        grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
             expect(neighboursCount).to.equal(0);
             cb();
         });
