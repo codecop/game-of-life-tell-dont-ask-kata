@@ -191,32 +191,39 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
     // counting neighbours is finished
 });
 
-class Game {
-    public seed(x: number, y: number): void {
+// class Game {
+//     private grid = new Grid();
+//
+//     public seed(x: number, y: number): void {
+//         this.grid.put(x, y, new Cell(CellState.Alive));
+//     }
+//
+//     // public print(leftX: number, upperY: number, rightX: number, lowerY: number, cb: (output: string) => void): void {
+//     //     let output = '';
+//     //     for (let y = lowerY; y < upperY; y++) {
+//     //         for (let x = leftX; x < rightX; x++) {
+//     //             this.grid.print(x, y, (character) => output += character);
+//     //         }
+//     //         output += '\n';
+//     //     }
+//     //     cb(output);
+//     // }
+// }
 
-    }
-
-    public print(leftX: number, upperY: number, rightX: number, lowerY: number, cb: (output: string) => void): void {
-        cb(' X \n' +
-            ' X \n' +
-            ' X \n');
-    }
-}
-
-describe('(callback for countNeighboursAt)', () => {
-    it('prints the board', cb => {
-        const game = new Game();
-        game.seed(1, 0);
-        game.seed(1, 1);
-        game.seed(1, 2);
-
-        game.print(0, 0, 3, 3, output => {
-            expect(output).equals(
-                ' X \n' +
-                ' X \n' +
-                ' X \n'
-            );
-            cb();
-        });
-    });
-});
+// describe('(callback for countNeighboursAt)', () => {
+    // it('prints the board', cb => {
+        // const game = new Game();
+        // game.seed(1, 0);
+        // game.seed(1, 1);
+        // game.seed(1, 2);
+        //
+        // game.print(0, 0, 3, 3, output => {
+        //     expect(output).equals(
+        //         ' X \n' +
+        //         ' X \n' +
+        //         ' X \n'
+        //     );
+        //     cb();
+        // });
+    // });
+// });
