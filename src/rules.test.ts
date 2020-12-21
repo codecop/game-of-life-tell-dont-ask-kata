@@ -1,4 +1,4 @@
-import {expect} from 'chai';
+import { expect } from 'chai';
 
 enum CellState {
     Alive, Dead,
@@ -63,13 +63,14 @@ describe('cell (2. callback for rules)', () => {
 
 class PositionAwareCell {
     constructor(private x: number, private y: number, private cell: Cell) {
-        console.log(this.x);
-        console.log(this.y);
     }
 
-    public execIfAlive(cb: () => void): void {
-        this.cell.execIfAlive(cb);
+    public execIfNear(x: number, y: number, cb: (cell: any) => any): void {
+        if (Math.abs(x - this.x) <= 1 && Math.abs(y - this.y) <= 1) {
+            cb(this.cell);
+        }
     }
+
 }
 
 class Grid {
@@ -77,7 +78,7 @@ class Grid {
 
     public countLivingNeighboursAt(x: number, y: number, cb: (neighboursCount: number) => void): void {
         let neighboursCount = 0;
-        this.eachAliveCell(() => neighboursCount++);
+        this.eachAliveCellAround(x, y, () => neighboursCount++);
 
         // Wilde Idee: Kann ich eine filter-map Kette dual in den callback functions haben?
         // // API like this?
@@ -112,8 +113,9 @@ class Grid {
         this.cells.push(new PositionAwareCell(x, y, cell));
     }
 
-    private eachAliveCell(cb: () => void): void {
-        this.cells.forEach(cell => cell.execIfAlive(cb));
+    private eachAliveCellAround(x: number, y: number, cb: () => void): void {
+        this.cells.forEach(cell =>
+            cell.execIfNear(x, y, cell => cell.execIfAlive(cb)));
     }
 }
 
@@ -160,7 +162,7 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
         });
     });
 
-    xit('count zero alive neighbours with other alive cells not near', (cb) => {
+    it('count zero alive neighbours with other alive cells not near', (cb) => {
         const grid = new Grid();
         grid.put(0, 0, new Cell(CellState.Alive));
 
@@ -171,6 +173,7 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
     });
 
 });
+
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 describe('(callback for countNeighboursAt)', () => {
 
