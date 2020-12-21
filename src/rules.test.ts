@@ -90,8 +90,8 @@ class Row {
     }
 
     public eachLiveCellAround(x: number, cb: () => void): void {
-        this.columns[x - 1].execIfAlive(cb);
-        this.columns[x + 1].execIfAlive(cb);
+        this.columns[x - 1]?.execIfAlive(cb);
+        this.columns[x + 1]?.execIfAlive(cb);
     }
 
     public print(cb: (output: string) => void) {
@@ -164,9 +164,9 @@ class Grid {
     }
 
     private eachAliveCellAround(x: number, y: number, cb: () => void): void {
-        this.rows[y - 1].eachLiveCellInBounds(x, cb);
+        this.rows[y - 1]?.eachLiveCellInBounds(x, cb);
         this.rows[y].eachLiveCellAround(x, cb);
-        this.rows[y + 1].eachLiveCellInBounds(x, cb);
+        this.rows[y + 1]?.eachLiveCellInBounds(x, cb);
     }
 }
 
@@ -232,7 +232,7 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
         });
     });
 
-    // TODO handle overflow
+    // handle overflow - done without tests
 });
 
 class Game {
