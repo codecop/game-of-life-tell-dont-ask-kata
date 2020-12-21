@@ -5,7 +5,8 @@ enum Cell {
 }
 
 function applyRules(cs: Cell, neighbourCount: number, cb: (nextcell: Cell) => void): void {
-    cb(Cell.Dead);
+    const willLive = neighbourCount === 3 || (neighbourCount === 2 && cs === Cell.Alive);
+    cb(willLive ? Cell.Alive : Cell.Dead);
 }
 
 describe('rules (1. start rules)', () => {
