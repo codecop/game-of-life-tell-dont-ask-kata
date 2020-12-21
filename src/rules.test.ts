@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import {expect} from 'chai';
 
 enum CellState {
     Alive, Dead,
@@ -69,7 +69,7 @@ class PositionAwareCell {
     constructor(private x: number, private y: number, private cell: Cell) {
     }
 
-    public execIfNear(x: number, y: number, cb: (cell: any) => any): void {
+    public execIfNear(x: number, y: number, cb: (cell: Cell) => void): void {
         const isInBoundingBox1 = Math.abs(x - this.x) <= 1 && Math.abs(y - this.y) <= 1;
         const isItself = x == this.x && y == this.y;
         if (isInBoundingBox1 && !isItself) {
@@ -191,7 +191,32 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
     // counting neighbours is finished
 });
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-describe('(callback for countNeighboursAt)', () => {
+class Game {
+    public seed(x: number, y: number): void {
 
+    }
+
+    public print(leftX: number, upperY: number, rightX: number, lowerY: number, cb: (output: string) => void): void {
+        cb(' X \n' +
+            ' X \n' +
+            ' X \n');
+    }
+}
+
+describe('(callback for countNeighboursAt)', () => {
+    it('prints the board', cb => {
+        const game = new Game();
+        game.seed(1, 0);
+        game.seed(1, 1);
+        game.seed(1, 2);
+
+        game.print(0, 0, 3, 3, output => {
+            expect(output).equals(
+                ' X \n' +
+                ' X \n' +
+                ' X \n'
+            );
+            cb();
+        });
+    });
 });
