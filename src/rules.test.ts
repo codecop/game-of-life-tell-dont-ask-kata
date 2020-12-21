@@ -65,20 +65,6 @@ describe('cell (2. callback for rules)', () => {
     // finished
 });
 
-class PositionAwareCell {
-    constructor(private x: number, private y: number, private cell: Cell) {
-    }
-
-    public execIfNear(x: number, y: number, cb: (cell: Cell) => void): void {
-        const isInBoundingBox1 = Math.abs(x - this.x) <= 1 && Math.abs(y - this.y) <= 1;
-        const isItself = x == this.x && y == this.y;
-        if (isInBoundingBox1 && !isItself) {
-            cb(this.cell);
-        }
-    }
-
-}
-
 class Row {
     private cells: Cell[] = [];
 
@@ -105,7 +91,6 @@ class Row {
 }
 
 class Grid {
-    private cells: PositionAwareCell[] = [];
     private rows: Row[] = [];
     constructor(sizeX: number, sizeY: number) {
         for(let i=0; i< sizeY; i++) {
@@ -150,7 +135,6 @@ class Grid {
         cell.execIfAlive(() => {
             this.rows[y].update(x, CellState.Alive);
         });
-        this.cells.push(new PositionAwareCell(x, y, cell));
     }
 
     private eachAliveCellAround(x: number, y: number, cb: () => void): void {
