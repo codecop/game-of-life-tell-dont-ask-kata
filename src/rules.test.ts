@@ -9,9 +9,9 @@ function applyRules(cs: CellState, neighbourCount: number, cb: (nextCellState: C
     cb(CellState.Dead);
 }
 
-describe('rules', () => {
+describe('rules (1. start rules)', () => {
     it('a cell without neighbours dies', (cb) => {
-        // 1. start rules
+
         applyRules(CellState.Alive, 0, (nextCellState) => {
             expect(nextCellState).to.equal(CellState.Dead);
             cb();
@@ -41,9 +41,8 @@ class Cell {
     }
 }
 
-describe('cell', () => {
+describe('cell (2. callback for rules)', () => {
     it('a cell updates itself', (cb) => {
-        // 2. what is callback for rules
         const cell = new Cell(CellState.Dead);
         cell.update(CellState.Alive);
         cell.execIfAlive(cb);
@@ -62,8 +61,19 @@ describe('cell', () => {
     });
 });
 
+class PositionAwareCell {
+    constructor(private x: number, private y: number, private cell: Cell) {
+        console.log(this.x);
+        console.log(this.y);
+    }
+
+    public execIfAlive(cb: () => void): void {
+        this.cell.execIfAlive(cb);
+    }
+}
+
 class Grid {
-    private cells: Array<{ x: number; y: number; cell: Cell }> = [];
+    private cells: PositionAwareCell[] = [];
 
     public countLivingNeighboursAt(x: number, y: number, cb: (neighboursCount: number) => void): void {
         let neighboursCount = 0;
@@ -99,18 +109,17 @@ class Grid {
     }
 
     public put(x: number, y: number, cell: Cell): void {
-        this.cells.push({x, y, cell});
+        this.cells.push(new PositionAwareCell(x, y, cell));
     }
 
     private eachAliveCell(cb: () => void): void {
-        this.cells.forEach(({cell}) => cell.execIfAlive(cb));
+        this.cells.forEach(cell => cell.execIfAlive(cb));
     }
 }
 
-describe('grid', () => {
+describe('grid (3. countNeighbours will be used in rules)', () => {
 
     it('counts neighbours in empty grid', (cb) => {
-        // 3. where do neighbours come from
         const grid = new Grid();
 
         grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
@@ -151,5 +160,18 @@ describe('grid', () => {
         });
     });
 
-    // 4. what is callback of countNeighboursAt
+    xit('count zero alive neighbours with other alive cells not near', (cb) => {
+        const grid = new Grid();
+        grid.put(0, 0, new Cell(CellState.Alive));
+
+        grid.countLivingNeighboursAt(2, 2, (neighboursCount: number) => {
+            expect(neighboursCount).to.equal(0);
+            cb();
+        });
+    });
+
+});
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+describe('(callback for countNeighboursAt)', () => {
+
 });
