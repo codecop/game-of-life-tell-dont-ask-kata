@@ -66,7 +66,9 @@ class PositionAwareCell {
     }
 
     public execIfNear(x: number, y: number, cb: (cell: any) => any): void {
-        if (Math.abs(x - this.x) <= 1 && Math.abs(y - this.y) <= 1) {
+        const isInBoundingBox1 = Math.abs(x - this.x) <= 1 && Math.abs(y - this.y) <= 1;
+        const isItself = x == this.x && y == this.y;
+        if (isInBoundingBox1 && !isItself) {
             cb(this.cell);
         }
     }
@@ -167,6 +169,16 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
         grid.put(0, 0, new Cell(CellState.Alive));
 
         grid.countLivingNeighboursAt(2, 2, (neighboursCount: number) => {
+            expect(neighboursCount).to.equal(0);
+            cb();
+        });
+    });
+
+    it('count not itself', (cb) => {
+        const grid = new Grid();
+        grid.put(0, 0, new Cell(CellState.Alive));
+
+        grid.countLivingNeighboursAt(0, 0, (neighboursCount: number) => {
             expect(neighboursCount).to.equal(0);
             cb();
         });
