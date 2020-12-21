@@ -79,8 +79,24 @@ class PositionAwareCell {
 
 }
 
+class Row {
+    private cells: Cell[] = [];
+
+    constructor(length: number) {
+        for(let i=0; i< length; i++) {
+            this.cells.push(new Cell(CellState.Dead));
+        }
+    }
+}
+
 class Grid {
     private cells: PositionAwareCell[] = [];
+    private rows: Row[] = [];
+    constructor(sizeX: number, sizeY: number) {
+        for(let i=0; i< sizeY; i++) {
+            this.rows.push(new Row(sizeX));
+        }
+    }
 
     public countLivingNeighboursAt(x: number, y: number, cb: (neighboursCount: number) => void): void {
         let neighboursCount = 0;
@@ -128,7 +144,7 @@ class Grid {
 describe('grid (3. countNeighbours will be used in rules)', () => {
 
     it('counts neighbours in empty grid', (cb) => {
-        const grid = new Grid();
+        const grid = new Grid(3, 3);
 
         grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
             expect(neighboursCount).to.equal(0);
@@ -138,7 +154,7 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
 
     it('count single alive neighbors not in corner', (cb) => {
         // Continued where do neighbours come from
-        const grid = new Grid();
+        const grid = new Grid(3, 3);
         grid.put(0, 0, new Cell(CellState.Alive));
 
         grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
@@ -148,7 +164,7 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
     });
 
     it('do not count dead neighbors not in corner', (cb) => {
-        const grid = new Grid();
+        const grid = new Grid(3, 3);
         grid.put(0, 0, new Cell(CellState.Dead));
 
         grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
@@ -158,7 +174,7 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
     });
 
     it('count two alive neighbors not in corner', (cb) => {
-        const grid = new Grid();
+        const grid = new Grid(3, 3);
         grid.put(0, 0, new Cell(CellState.Alive));
         grid.put(0, 1, new Cell(CellState.Alive));
 
@@ -169,7 +185,7 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
     });
 
     it('count zero alive neighbours with other alive cells not near', (cb) => {
-        const grid = new Grid();
+        const grid = new Grid(4, 4);
         grid.put(0, 0, new Cell(CellState.Alive));
 
         grid.countLivingNeighboursAt(2, 2, (neighboursCount: number) => {
@@ -179,7 +195,7 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
     });
 
     it('count not itself', (cb) => {
-        const grid = new Grid();
+        const grid = new Grid(2, 2);
         grid.put(0, 0, new Cell(CellState.Alive));
 
         grid.countLivingNeighboursAt(0, 0, (neighboursCount: number) => {
@@ -188,7 +204,7 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
         });
     });
 
-    // counting neighbours is finished
+    // TODO handle overflow
 });
 
 // class Game {
