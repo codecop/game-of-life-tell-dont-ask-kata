@@ -234,12 +234,23 @@ class Game {
         this.grid.update(x, y, Cell.Alive);
     }
 
+    public tick() {
+        this.grid.forEachCoordinate((x, y) => {
+            this.grid.countLivingNeighboursAt(x, y, (count) => {
+                applyRules(state, count, (newCellState) => {
+                    this.grid.update(x, y, newCellState);
+                });
+            });
+        });
+    }
+
     public print(cb: (output: string) => void): void {
-        let output = '';
+        // could put that into test, does not matter.
+        let accumulator = '';
 
-        this.grid.print( (append) => output += append);
+        this.grid.print((output) => accumulator += output);
 
-        cb(output);
+        cb(accumulator);
     }
 }
 
@@ -256,6 +267,25 @@ describe('Game (callback for countNeighboursAt)', () => {
                 ' X \n' +
                 ' X \n' +
                 ' X \n'
+            );
+            cb();
+        });
+    });
+
+    it('iterates the board', cb => {
+        const grid = new Grid(3, 3);
+        const game = new Game(grid);
+        game.seed(1, 0);
+        game.seed(1, 1);
+        game.seed(1, 2);
+
+        game.tick();
+
+        game.print(output => {
+            expect(output).equals(
+                '   \n' +
+                'XXX\n' +
+                '   \n'
             );
             cb();
         });
