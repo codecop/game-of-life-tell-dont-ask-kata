@@ -21,7 +21,7 @@ describe('rules (1. start rules)', () => {
 
     it('a cell without neighbours dies', (cb) => {
         const rules = new Rules();
-        rules.apply(Cell.Alive,(nextcell) => {
+        rules.apply(Cell.Alive, (nextcell) => {
             expect(nextcell).to.equal(Cell.Dead);
             cb();
         });
@@ -60,10 +60,9 @@ class Column {
         }
     }
 
-    // Teil von filter alive
-    public execIfAlive(cb: () => void): void {
+    public countAsLiving(rules: Rules) {
         if (this.state === Cell.Alive) {
-            cb();
+            rules.incrementNeighbourCount();
         }
     }
 
@@ -74,37 +73,36 @@ class Column {
     public flipCache() {
         this.state = this.cachedState;
     }
+
 }
 
 describe('cell (2. callback for rules)', () => {
 
     it('a cell updates itself', (cb) => {
+        const rulesMock = {
+            incrementNeighbourCount: cb
+        } as unknown as Rules;
         const cell = new Column(Cell.Dead);
         cell.update(Cell.Alive);
-        cell.execIfAlive(cb);
+        cell.countAsLiving(rulesMock);
     });
 
     it('executes a callback if the cell is alive', (cb) => {
+        const rulesMock = {
+            incrementNeighbourCount: cb
+        } as unknown as Rules;
         const cell = new Column(Cell.Alive);
-        cell.execIfAlive(cb);
+        cell.countAsLiving(rulesMock);
     });
 
     it('executes a callback if the cell is dead', () => {
+        const rulesMock = {
+            incrementNeighbourCount: () => {
+                throw new Error();
+            }
+        } as unknown as Rules;
         const cell = new Column(Cell.Dead);
-        cell.execIfAlive(() => {
-            throw new Error();
-        });
-    });
-
-    it('applies rules to a cell (bug?)', cb => {
-        const rules = new Rules();
-        rules.incrementNeighbourCount();
-        rules.incrementNeighbourCount();
-
-        const cell = new Column(Cell.Alive);
-        cell.applyRulesCache(rules);
-        cell.flipCache();
-        cell.execIfAlive(cb);
+        cell.countAsLiving(rulesMock);
     });
 
     // finished
@@ -125,13 +123,13 @@ class Row {
     }
 
     public eachLiveCellInBounds(x: number, rules: Rules): void {
-        this.columns[x].execIfAlive(() => rules.incrementNeighbourCount());
+        this.columns[x].countAsLiving(rules);
         this.eachLiveCellAround(x, rules);
     }
 
     public eachLiveCellAround(x: number, rules: Rules): void {
-        this.columns[x - 1]?.execIfAlive(() => rules.incrementNeighbourCount());
-        this.columns[x + 1]?.execIfAlive(() => rules.incrementNeighbourCount());
+        this.columns[x - 1]?.countAsLiving(rules);
+        this.columns[x + 1]?.countAsLiving(rules);
     }
 
     public print(cb: (output: string) => void) {
