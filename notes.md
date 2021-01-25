@@ -94,4 +94,22 @@ Constraint "Tell Don't Ask"
 * Copy ist irgendwie standard. Aber mit TDA geht es nicht gut.
 * Ist `copy` gegen die Natur von TDA?
 * Memento ist eine andere Methode und befolt Kapselung.
-* Counter Objeckt statt Callback bei Nachbar zählen => weniger Callback, weniger generisch, mehr Kopplung
+Counter Objeckt statt Callback bei Nachbar zählen => weniger Callback, weniger generisch, mehr Kopplung
+* Tests behindern uns beim groben Umstrukturieren.
+* Wir entfernen Callbacks und erhöhen Kopplung auf konkrete Typen.
+* Benannte konkrete Functions fühlen sich besser an als anonymer Callback.
+* Callback eingeführt um zu testen, stört beim Refactoring.
+* Brauchen bei den Tests viele Mocks.
+* Wieder Callback entfernt weil Code und Daten zusammen gekommen sind.
+* Daten die Entwscheidung treffen haben die Entscheidung geteilt.
+
+### Fragen
+
+* Hat TDD uns am Anfang viele Callbacks erzeugt?
+  * Wir haben beim Refactoren Tests verloren?!
+* Hätten wir mit echten Mocks anfangen können?
+* Hätten wir outside-in anfangen sollen?
+
+### Retro 4
+
+*
