@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import {expect} from 'chai';
 
 enum Cell {
     Alive, Dead,
@@ -9,18 +9,18 @@ function applyRules(cs: Cell, neighbourCount: number, cb: (nextcell: Cell) => vo
     cb(willLive ? Cell.Alive : Cell.Dead);
 }
 
-class NeighbourCounter {
-    private neighbourCount = 0;
-
-    public inc(): void {
-        this.neighbourCount++;
-    }
-
-    public applyRules(cs: Cell, cb: (nextcell: Cell) => void): void {
-        const willLive = this.neighbourCount === 3 || (this.neighbourCount === 2 && cs === Cell.Alive);
-        cb(willLive ? Cell.Alive : Cell.Dead);
-    }
-}
+// class NeighbourCounter {
+//     private neighbourCount = 0;
+//
+//     public inc(): void {
+//         this.neighbourCount++;
+//     }
+//
+//     public applyRules(cs: Cell, cb: (nextcell: Cell) => void): void {
+//         const willLive = this.neighbourCount === 3 || (this.neighbourCount === 2 && cs === Cell.Alive);
+//         cb(willLive ? Cell.Alive : Cell.Dead);
+//     }
+// }
 
 describe('rules (1. start rules)', () => {
 
@@ -159,14 +159,14 @@ class Grid {
         }
     }
 
-    public countLivingNeighboursAt(x: number, y: number, cb: (neighboursCount: number) => void): void {
+    public applyRules(x: number, y: number): void {
         let neighboursCount = 0;
 
         this.rows[y - 1]?.eachLiveCellInBounds(x, () => neighboursCount++);
         this.rows[y].eachLiveCellAround(x, () => neighboursCount++);
         this.rows[y + 1]?.eachLiveCellInBounds(x, () => neighboursCount++);
 
-        cb(neighboursCount);
+        this.rows[y].applyRulesCache(x, neighboursCount);
     }
 
     public update(x: number, y: number, cell: Cell): void {
@@ -181,91 +181,10 @@ class Grid {
     }
 
     // v2
-    public applyRulesCache(x: number, y: number, count: number): void {
-        this.rows[y].applyRulesCache(x, count);
-    }
-
     public flipCache(x: number, y: number) {
         this.rows[y].flipCache(x);
     }
 }
-
-describe('grid (3. countNeighbours will be used in rules)', () => {
-
-    it('counts neighbours in empty grid', (cb) => {
-        const grid = new Grid(3, 3);
-
-        grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
-            expect(neighboursCount).to.equal(0);
-            cb();
-        });
-    });
-
-    it('count single alive neighbors not in corner', (cb) => {
-        // Continued where do neighbours come from
-        const grid = new Grid(3, 3);
-        grid.update(0, 0, Cell.Alive);
-
-        grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
-            expect(neighboursCount).to.equal(1);
-            cb();
-        });
-    });
-
-    it('do not count dead neighbors not in corner', (cb) => {
-        const grid = new Grid(3, 3);
-
-        grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
-            expect(neighboursCount).to.equal(0);
-            cb();
-        });
-    });
-
-    it('count two alive neighbors not in corner', (cb) => {
-        const grid = new Grid(3, 3);
-        grid.update(0, 0, Cell.Alive);
-        grid.update(0, 1, Cell.Alive);
-
-        grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
-            expect(neighboursCount).to.equal(2);
-            cb();
-        });
-    });
-
-    it('count zero alive neighbours with other alive cells not near', (cb) => {
-        const grid = new Grid(4, 4);
-        grid.update(0, 0, Cell.Alive);
-
-        grid.countLivingNeighboursAt(2, 2, (neighboursCount: number) => {
-            expect(neighboursCount).to.equal(0);
-            cb();
-        });
-    });
-
-    it('count not itself', (cb) => {
-        const grid = new Grid(3, 3);
-        grid.update(1, 1, Cell.Alive);
-
-        grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
-            expect(neighboursCount).to.equal(0);
-            cb();
-        });
-    });
-
-    it('counts upper and lower neighbour (bug?)', (cb) => {
-        const grid = new Grid(3, 3);
-        grid.update(1, 0, Cell.Alive);
-        grid.update(1, 1, Cell.Alive);
-        grid.update(1, 2, Cell.Alive);
-
-        grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
-            expect(neighboursCount).to.equal(2);
-            cb();
-        });
-    });
-
-    // handle overflow - done without tests
-});
 
 class Game {
     private grid: Grid;
@@ -281,9 +200,7 @@ class Game {
     public tickCache() {
         for (let y = 0; y < this.sizeY; y++) {
             for (let x = 0; x < this.sizeX; x++) {
-                this.grid.countLivingNeighboursAt(x, y, (count) => {
-                    this.grid.applyRulesCache(x, y, count);
-                });
+                this.grid.applyRules(x, y);
             }
         }
 
