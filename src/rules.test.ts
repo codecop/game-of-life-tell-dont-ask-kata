@@ -9,6 +9,19 @@ function applyRules(cs: Cell, neighbourCount: number, cb: (nextcell: Cell) => vo
     cb(willLive ? Cell.Alive : Cell.Dead);
 }
 
+class NeighbourCounter {
+    private neighbourCount = 0;
+
+    public inc(): void {
+        this.neighbourCount++;
+    }
+
+    public applyRules(cs: Cell, cb: (nextcell: Cell) => void): void {
+        const willLive = this.neighbourCount === 3 || (this.neighbourCount === 2 && cs === Cell.Alive);
+        cb(willLive ? Cell.Alive : Cell.Dead);
+    }
+}
+
 describe('rules (1. start rules)', () => {
 
     it('a cell without neighbours dies', (cb) => {
