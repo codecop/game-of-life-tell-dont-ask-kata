@@ -127,24 +127,6 @@ class Row {
         });
     }
 
-    // v1
-    public applyRules(x: number, count: number) {
-        this.columns[x].applyRules(count);
-    }
-
-    copyInto(row: Row) {
-        this.columns.forEach((cell, x) => {
-            row.setColumn(x, cell);
-        });
-    }
-
-    private setColumn(x: number, cell: Column) {
-        cell.execIfAlive(() => {
-            this.columns[x].update(Cell.Alive);
-        });
-    }
-
-    // v2
     public applyRulesCache(x: number, count: number) {
         this.columns[x].applyRulesCache(count);
     }
@@ -184,26 +166,6 @@ class Grid {
             cb('\n');
         });
     }
-
-    // v1
-    public applyRules(x: number, y: number, count: number): void {
-        this.rows[y].applyRules(x, count);
-    }
-
-    public copyInto(newGrid: Grid) {
-        this.rows.forEach((row, y) => {
-            newGrid.setRow(y, row);
-        })
-    }
-
-    private setRow(y: number, row: Row) {
-        row.copyInto(this.rows[y]);
-    }
-
-    // v1.1 ... same as v1 :-(
-    // applyRulesInto(x: number, y: number, count: number, newGrid: Grid) {
-    //    newGrid.applyRulesFrom(x, y, count, this.rows[y]);
-    // }
 
     // v2
     public applyRulesCache(x: number, y: number, count: number): void {
@@ -303,22 +265,6 @@ class Game {
         this.grid.update(x, y, Cell.Alive);
     }
 
-    public tickCopy() {
-        const newGrid = new Grid(this.sizeX, this.sizeY);
-        this.grid.copyInto(newGrid);
-
-        for (let y = 0; y < this.sizeY; y++) {
-            for (let x = 0; x < this.sizeX; x++) {
-                this.grid.countLivingNeighboursAt(x, y, (count) => {
-                    newGrid.applyRules(x, y, count);
-                    // v2 this.grid.applyRulesInto(x, y, count, newGrid);
-                });
-            }
-        }
-
-        this.grid = newGrid;
-    }
-
     public tickCache() {
         for (let y = 0; y < this.sizeY; y++) {
             for (let x = 0; x < this.sizeX; x++) {
@@ -367,24 +313,6 @@ describe('Game (callback for countNeighboursAt)', () => {
         game.seed(0, 1);
         game.seed(1, 1);
         game.seed(2, 1);
-
-        game.print(output => {
-            expect(output).equals(
-                '   \n' +
-                'XXX\n' +
-                '   \n'
-            );
-            cb();
-        });
-    });
-
-    it('iterates the board (version 1 with double dispatch)', cb => {
-        const game = new Game(3, 3);
-        game.seed(1, 0);
-        game.seed(1, 1);
-        game.seed(1, 2);
-
-        game.tickCopy();
 
         game.print(output => {
             expect(output).equals(
