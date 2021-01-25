@@ -68,10 +68,6 @@ class Column {
         }
     }
 
-    public applyRules(count: number) {
-        applyRules(this.state, count, (newState) => this.state = newState);
-    }
-
     public applyRulesCache(count: number) {
         applyRules(this.state, count, (newState) => this.cachedState = newState);
     }
@@ -103,7 +99,8 @@ describe('cell (2. callback for rules)', () => {
 
     it('applies rules to a cell (bug?)', cb => {
         const cell = new Column(Cell.Alive);
-        cell.applyRules(2);
+        cell.applyRulesCache(2);
+        cell.flipCache();
         cell.execIfAlive(cb);
     });
 
