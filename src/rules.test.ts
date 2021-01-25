@@ -4,35 +4,34 @@ enum Cell {
     Alive, Dead,
 }
 
-function applyRules(cs: Cell, neighbourCount: number, cb: (nextcell: Cell) => void): void {
-    const willLive = neighbourCount === 3 || (neighbourCount === 2 && cs === Cell.Alive);
-    cb(willLive ? Cell.Alive : Cell.Dead);
-}
+class Rules {
+    private neighbourCount = 0;
 
-// class NeighbourCounter {
-//     private neighbourCount = 0;
-//
-//     public inc(): void {
-//         this.neighbourCount++;
-//     }
-//
-//     public applyRules(cs: Cell, cb: (nextcell: Cell) => void): void {
-//         const willLive = this.neighbourCount === 3 || (this.neighbourCount === 2 && cs === Cell.Alive);
-//         cb(willLive ? Cell.Alive : Cell.Dead);
-//     }
-// }
+    public incrementNeighbourCount(): void {
+        this.neighbourCount++;
+    }
+
+    public apply(cs: Cell, cb: (nextcell: Cell) => void): void {
+        const willLive = this.neighbourCount === 3 || (this.neighbourCount === 2 && cs === Cell.Alive);
+        cb(willLive ? Cell.Alive : Cell.Dead);
+    }
+}
 
 describe('rules (1. start rules)', () => {
 
     it('a cell without neighbours dies', (cb) => {
-        applyRules(Cell.Alive, 0, (nextcell) => {
+        const rules = new Rules();
+        rules.apply(Cell.Alive,(nextcell) => {
             expect(nextcell).to.equal(Cell.Dead);
             cb();
         });
     });
 
     it('an alive cell with two neighbours stays alive', (cb) => {
-        applyRules(Cell.Alive, 2, (nextcell) => {
+        const rules = new Rules();
+        rules.incrementNeighbourCount();
+        rules.incrementNeighbourCount();
+        rules.apply(Cell.Alive, (nextcell) => {
             expect(nextcell).to.equal(Cell.Alive);
             cb();
         });
@@ -68,8 +67,8 @@ class Column {
         }
     }
 
-    public applyRulesCache(count: number) {
-        applyRules(this.state, count, (newState) => this.cachedState = newState);
+    public applyRulesCache(rules: Rules) {
+        rules.apply(this.state, (newState) => this.cachedState = newState);
     }
 
     public flipCache() {
@@ -98,8 +97,12 @@ describe('cell (2. callback for rules)', () => {
     });
 
     it('applies rules to a cell (bug?)', cb => {
+        const rules = new Rules();
+        rules.incrementNeighbourCount();
+        rules.incrementNeighbourCount();
+
         const cell = new Column(Cell.Alive);
-        cell.applyRulesCache(2);
+        cell.applyRulesCache(rules);
         cell.flipCache();
         cell.execIfAlive(cb);
     });
@@ -137,8 +140,8 @@ class Row {
         });
     }
 
-    public applyRulesCache(x: number, count: number) {
-        this.columns[x].applyRulesCache(count);
+    public applyRulesCache(x: number, rules: Rules) {
+        this.columns[x].applyRulesCache(rules);
     }
 
     public flipCache(x: number) {
@@ -157,13 +160,12 @@ class Grid {
     }
 
     public applyRules(x: number, y: number): void {
-        let neighboursCount = 0;
+        const rules = new Rules();
+        this.rows[y - 1]?.eachLiveCellInBounds(x, () => rules.incrementNeighbourCount());
+        this.rows[y].eachLiveCellAround(x, () => rules.incrementNeighbourCount());
+        this.rows[y + 1]?.eachLiveCellInBounds(x, () => rules.incrementNeighbourCount());
 
-        this.rows[y - 1]?.eachLiveCellInBounds(x, () => neighboursCount++);
-        this.rows[y].eachLiveCellAround(x, () => neighboursCount++);
-        this.rows[y + 1]?.eachLiveCellInBounds(x, () => neighboursCount++);
-
-        this.rows[y].applyRulesCache(x, neighboursCount);
+        this.rows[y].applyRulesCache(x, rules);
     }
 
     public update(x: number, y: number, cell: Cell): void {
