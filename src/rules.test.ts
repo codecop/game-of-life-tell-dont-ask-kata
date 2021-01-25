@@ -19,6 +19,14 @@ describe('rules (1. start rules)', () => {
         });
     });
 
+    it('an alive cell with two neighbours stays alive', (cb) => {
+
+        applyRules(Cell.Alive, 2, (nextcell) => {
+            expect(nextcell).to.equal(Cell.Alive);
+            cb();
+        });
+    });
+
     // TODO more tests, not related to TDA
 });
 
@@ -70,6 +78,12 @@ describe('cell (2. callback for rules)', () => {
             throw new Error();
         });
     });
+
+    it('applies rules to a cell (bug?)', cb => {
+        const cell = new Column(Cell.Alive);
+        cell.applyRules(2);
+        cell.execIfAlive(cb);
+    })
 
     // finished
 });
@@ -209,6 +223,19 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
         });
     });
 
+
+    it('counts upper and lower neighbour (bug?)', (cb) => {
+        const grid = new Grid(3, 3);
+        grid.update(1, 0, Cell.Alive);
+        grid.update(1, 1, Cell.Alive);
+        grid.update(1, 2, Cell.Alive);
+
+        grid.countLivingNeighboursAt(1, 1, (neighboursCount: number) => {
+            expect(neighboursCount).to.equal(2);
+            cb();
+        });
+    });
+
     // handle overflow - done without tests
 });
 
@@ -228,7 +255,6 @@ class Game {
 
         for (let y = 0; y < this.sizeY; y++) {
             for (let x = 0; x < this.sizeX; x++) {
-
                 this.grid.countLivingNeighboursAt(x, y, (count) => {
                     newGrid.applyRules(x, y, count);
                 });
@@ -264,6 +290,21 @@ describe('Game (callback for countNeighboursAt)', () => {
             cb();
         });
     });
+    it('prints board other dimension', cb => {
+        const game = new Game(3, 3);
+        game.seed(0, 1);
+        game.seed(1, 1);
+        game.seed(2, 1);
+
+        game.print(output => {
+            expect(output).equals(
+                '   \n' +
+                'XXX\n' +
+                '   \n'
+            );
+            cb();
+        });
+    });
 
     it('iterates the board', cb => {
         const game = new Game(3, 3);
@@ -284,6 +325,8 @@ describe('Game (callback for countNeighboursAt)', () => {
     });
 });
 
+
+
 // TODO bug in final test?
 
 // TODO Counter Objeckt statt Callback bei Nachbar zählen
@@ -291,3 +334,5 @@ describe('Game (callback for countNeighboursAt)', () => {
 // -> weniger Callback, weniger generisch, mehr Kommplung
 
 // TODO alle Callbacks prüfen ob wir sie brauchen
+
+// TODO seed method for tests for readability (but not related to TDA)
