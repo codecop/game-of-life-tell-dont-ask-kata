@@ -52,21 +52,21 @@ class Column {
         this.state = newState;
     }
 
-    public countAsLiving(rules: Rules) {
+    public countAsLiving(rules: Rules): void {
         if (this.state === Cell.Alive) {
             rules.incrementNeighbourCount();
         }
     }
 
-    public applyRulesCache(rules: Rules) {
+    public applyRulesCache(rules: Rules): void {
         rules.apply(this.state, (newState) => this.cachedState = newState);
     }
 
-    public flipCache() {
+    public flipCache(): void {
         this.state = this.cachedState;
     }
 
-    public print(cb: (output: string) => void) {
+    public print(cb: (output: string) => void): void {
         if (this.state === Cell.Alive) {
             cb('X');
         } else {
@@ -132,17 +132,17 @@ class Row {
         this.columns[x + 1]?.countAsLiving(rules);
     }
 
-    public print(cb: (output: string) => void) {
+    public print(cb: (output: string) => void): void {
         this.columns.forEach(cell => {
             cell.print(cb);
         });
     }
 
-    public applyRulesCache(x: number, rules: Rules) {
+    public applyRulesCache(x: number, rules: Rules): void {
         this.columns[x].applyRulesCache(rules);
     }
 
-    public flipCache(x: number) {
+    public flipCache(x: number): void {
         this.columns[x].flipCache();
     }
 }
@@ -171,14 +171,14 @@ class Grid {
         this.rows[y].update(x, cell);
     }
 
-    public print(cb: (output: string) => void) {
+    public print(cb: (output: string) => void): void {
         this.rows.forEach(row => {
             row.print(cb);
             cb('\n');
         });
     }
 
-    public flipCache(x: number, y: number) {
+    public flipCache(x: number, y: number): void {
         this.rows[y].flipCache(x);
     }
 }
@@ -194,7 +194,7 @@ class Game {
         this.grid.update(x, y, Cell.Alive);
     }
 
-    public tickCache() {
+    public tickCache(): void {
         for (let y = 0; y < this.sizeY; y++) {
             for (let x = 0; x < this.sizeX; x++) {
                 this.grid.applyRules(x, y);
