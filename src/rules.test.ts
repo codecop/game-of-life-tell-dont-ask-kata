@@ -218,6 +218,8 @@ class Game {
     }
 
     public tickCache(): void {
+        // TODO remove duplication
+        // TODO split method
         for (let y = 0; y < this.sizeY; y++) {
             for (let x = 0; x < this.sizeX; x++) {
                 this.grid.applyRules(x, y);
@@ -292,7 +294,5 @@ describe('Game (callback for countNeighboursAt)', () => {
         });
     });
 });
-
-// TODO alle Callbacks prüfen ob wir sie brauchen
 
 // TODO seed method for tests for readability (but not related to TDA)
