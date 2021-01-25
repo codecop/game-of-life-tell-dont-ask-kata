@@ -77,7 +77,7 @@ class Column {
         }
     }
 
-    applyRules(nextGeneration: NextGeneration) {
+    applyRules(nextGeneration: NextGeneration): void {
         const willLive = nextGeneration === NextGeneration.Born || nextGeneration === NextGeneration.StaysAlive && this.state === Cell.Alive;
         if (willLive) {
             this.cachedState = Cell.Alive;
