@@ -121,6 +121,18 @@ class Row {
     public applyRules(x: number, count: number) {
         this.columns[x].applyRules(count);
     }
+
+    copyInto(row: Row) {
+        this.columns.forEach((cell, x) => {
+            row.setColumn(x, cell);
+        })
+    }
+
+    private setColumn(x: number, cell: Column) {
+        cell.execIfAlive(() => {
+            this.columns[x].update(Cell.Alive)
+        })
+    }
 }
 
 // Grid manages list of Rows and delegates to rows. = First Class Collection
@@ -159,6 +171,15 @@ class Grid {
         this.rows[y].applyRules(x, count);
     }
 
+    public copyInto(newGrid: Grid) {
+        this.rows.forEach((row, y) => {
+            newGrid.setRow(y, row);
+        })
+    }
+
+    private setRow(y: number, row: Row) {
+        row.copyInto(this.rows[y]);
+    }
 }
 
 describe('grid (3. countNeighbours will be used in rules)', () => {
@@ -252,6 +273,7 @@ class Game {
 
     public tick() {
         const newGrid = new Grid(this.sizeX, this.sizeY);
+        this.grid.copyInto(newGrid);
 
         for (let y = 0; y < this.sizeY; y++) {
             for (let x = 0; x < this.sizeX; x++) {
