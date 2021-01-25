@@ -124,14 +124,14 @@ class Row {
         this.columns[x].update(cell);
     }
 
-    public eachLiveCellInBounds(x: number, cb: () => void): void {
-        this.columns[x].execIfAlive(cb);
-        this.eachLiveCellAround(x, cb);
+    public eachLiveCellInBounds(x: number, rules: Rules): void {
+        this.columns[x].execIfAlive(() => rules.incrementNeighbourCount());
+        this.eachLiveCellAround(x, rules);
     }
 
-    public eachLiveCellAround(x: number, cb: () => void): void {
-        this.columns[x - 1]?.execIfAlive(cb);
-        this.columns[x + 1]?.execIfAlive(cb);
+    public eachLiveCellAround(x: number, rules: Rules): void {
+        this.columns[x - 1]?.execIfAlive(() => rules.incrementNeighbourCount());
+        this.columns[x + 1]?.execIfAlive(() => rules.incrementNeighbourCount());
     }
 
     public print(cb: (output: string) => void) {
@@ -161,9 +161,9 @@ class Grid {
 
     public applyRules(x: number, y: number): void {
         const rules = new Rules();
-        this.rows[y - 1]?.eachLiveCellInBounds(x, () => rules.incrementNeighbourCount());
-        this.rows[y].eachLiveCellAround(x, () => rules.incrementNeighbourCount());
-        this.rows[y + 1]?.eachLiveCellInBounds(x, () => rules.incrementNeighbourCount());
+        this.rows[y - 1]?.eachLiveCellInBounds(x, rules);
+        this.rows[y].eachLiveCellAround(x, rules);
+        this.rows[y + 1]?.eachLiveCellInBounds(x, rules);
 
         this.rows[y].applyRulesCache(x, rules);
     }
