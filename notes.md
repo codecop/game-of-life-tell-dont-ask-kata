@@ -57,7 +57,7 @@ Constraint "Tell Don't Ask"
 * 2.5h
 * weiter an 4. = alles zusammen setzen
 
-### TDA
+### TDA 3
 
 * `executeIf` is Feature Envy?
 * wenn wir Zugriff auf Data hineinverschieben wird es einfacher.
@@ -88,3 +88,9 @@ Constraint "Tell Don't Ask"
 
 * 2h
 * bug in tick - State vergessen
+
+### TDA 4
+
+* Copy ist irgendwie standard. Aber mit TDA geht es nicht gut.
+* Ist `copy` gegen die Natur von TDA?
+* Memento ist eine andere Methode und befolt Kapselung.

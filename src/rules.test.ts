@@ -12,7 +12,6 @@ function applyRules(cs: Cell, neighbourCount: number, cb: (nextcell: Cell) => vo
 describe('rules (1. start rules)', () => {
 
     it('a cell without neighbours dies', (cb) => {
-
         applyRules(Cell.Alive, 0, (nextcell) => {
             expect(nextcell).to.equal(Cell.Dead);
             cb();
@@ -20,7 +19,6 @@ describe('rules (1. start rules)', () => {
     });
 
     it('an alive cell with two neighbours stays alive', (cb) => {
-
         applyRules(Cell.Alive, 2, (nextcell) => {
             expect(nextcell).to.equal(Cell.Alive);
             cb();
@@ -94,7 +92,7 @@ describe('cell (2. callback for rules)', () => {
         const cell = new Column(Cell.Alive);
         cell.applyRules(2);
         cell.execIfAlive(cb);
-    })
+    });
 
     // finished
 });
@@ -129,6 +127,7 @@ class Row {
         });
     }
 
+    // v1
     public applyRules(x: number, count: number) {
         this.columns[x].applyRules(count);
     }
@@ -136,15 +135,16 @@ class Row {
     copyInto(row: Row) {
         this.columns.forEach((cell, x) => {
             row.setColumn(x, cell);
-        })
+        });
     }
 
     private setColumn(x: number, cell: Column) {
         cell.execIfAlive(() => {
-            this.columns[x].update(Cell.Alive)
-        })
+            this.columns[x].update(Cell.Alive);
+        });
     }
 
+    // v2
     public applyRulesCache(x: number, count: number) {
         this.columns[x].applyRulesCache(count);
     }
@@ -156,7 +156,6 @@ class Row {
 
 // Grid manages list of Rows and delegates to rows. = First Class Collection
 class Grid {
-
     private rows: Row[] = [];
 
     constructor(sizeX: number, sizeY: number) {
@@ -214,7 +213,6 @@ class Grid {
     public flipCache(x: number, y: number) {
         this.rows[y].flipCache(x);
     }
-
 }
 
 describe('grid (3. countNeighbours will be used in rules)', () => {
@@ -279,7 +277,6 @@ describe('grid (3. countNeighbours will be used in rules)', () => {
         });
     });
 
-
     it('counts upper and lower neighbour (bug?)', (cb) => {
         const grid = new Grid(3, 3);
         grid.update(1, 0, Cell.Alive);
@@ -306,7 +303,7 @@ class Game {
         this.grid.update(x, y, Cell.Alive);
     }
 
-    public tick1() {
+    public tickCopy() {
         const newGrid = new Grid(this.sizeX, this.sizeY);
         this.grid.copyInto(newGrid);
 
@@ -364,6 +361,7 @@ describe('Game (callback for countNeighboursAt)', () => {
             cb();
         });
     });
+
     it('prints board other dimension', cb => {
         const game = new Game(3, 3);
         game.seed(0, 1);
@@ -386,7 +384,7 @@ describe('Game (callback for countNeighboursAt)', () => {
         game.seed(1, 1);
         game.seed(1, 2);
 
-        game.tick1();
+        game.tickCopy();
 
         game.print(output => {
             expect(output).equals(
@@ -419,7 +417,7 @@ describe('Game (callback for countNeighboursAt)', () => {
 
 // TODO Counter Objeckt statt Callback bei Nachbar zählen
 // Idee: Statt Callback bei isAlive einfach den Counter übergeben
-// -> weniger Callback, weniger generisch, mehr Kommplung
+// -> weniger Callback, weniger generisch, mehr Kopplung
 
 // TODO alle Callbacks prüfen ob wir sie brauchen
 
