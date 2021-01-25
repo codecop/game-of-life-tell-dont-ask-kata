@@ -167,6 +167,7 @@ class Grid {
         });
     }
 
+    // v1
     public applyRules(x: number, y: number, count: number): void {
         this.rows[y].applyRules(x, count);
     }
@@ -180,6 +181,11 @@ class Grid {
     private setRow(y: number, row: Row) {
         row.copyInto(this.rows[y]);
     }
+
+    // v2 ... same as v1 :-(
+    // applyRulesInto(x: number, y: number, count: number, newGrid: Grid) {
+    //    newGrid.applyRulesFrom(x, y, count, this.rows[y]);
+    // }
 }
 
 describe('grid (3. countNeighbours will be used in rules)', () => {
@@ -272,6 +278,7 @@ class Game {
     }
 
     public tick() {
+        // v1
         const newGrid = new Grid(this.sizeX, this.sizeY);
         this.grid.copyInto(newGrid);
 
@@ -279,6 +286,7 @@ class Game {
             for (let x = 0; x < this.sizeX; x++) {
                 this.grid.countLivingNeighboursAt(x, y, (count) => {
                     newGrid.applyRules(x, y, count);
+                    // v2 this.grid.applyRulesInto(x, y, count, newGrid);
                 });
             }
         }
@@ -328,7 +336,7 @@ describe('Game (callback for countNeighboursAt)', () => {
         });
     });
 
-    it('iterates the board', cb => {
+    it('iterates the board (version 1 with double dispatch)', cb => {
         const game = new Game(3, 3);
         game.seed(1, 0);
         game.seed(1, 1);

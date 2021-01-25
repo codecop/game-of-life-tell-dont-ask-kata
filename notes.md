@@ -83,3 +83,8 @@ Constraint "Tell Don't Ask"
 * Weil wir GoL kennen können wir Rules hinschreiben in 1 Minute.
 * Wir sind stark in unseren Mustern, weil wir Problem kennen? Weil wir schon
   Lösungsmuster haben.
+
+## 20210125 Session 4
+
+* 2h
+* bug in tick - State vergessen
