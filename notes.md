@@ -94,3 +94,4 @@ Constraint "Tell Don't Ask"
 * Copy ist irgendwie standard. Aber mit TDA geht es nicht gut.
 * Ist `copy` gegen die Natur von TDA?
 * Memento ist eine andere Methode und befolt Kapselung.
+* Counter Objeckt statt Callback bei Nachbar zählen => weniger Callback, weniger generisch, mehr Kopplung

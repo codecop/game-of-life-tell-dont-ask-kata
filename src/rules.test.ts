@@ -52,14 +52,6 @@ class Column {
         this.state = newState;
     }
 
-    public print(cb: (output: string) => void) {
-        if (this.state === Cell.Alive) {
-            cb('X');
-        } else {
-            cb(' ');
-        }
-    }
-
     public countAsLiving(rules: Rules) {
         if (this.state === Cell.Alive) {
             rules.incrementNeighbourCount();
@@ -72,6 +64,14 @@ class Column {
 
     public flipCache() {
         this.state = this.cachedState;
+    }
+
+    public print(cb: (output: string) => void) {
+        if (this.state === Cell.Alive) {
+            cb('X');
+        } else {
+            cb(' ');
+        }
     }
 
 }
@@ -159,6 +159,7 @@ class Grid {
 
     public applyRules(x: number, y: number): void {
         const rules = new Rules();
+
         this.rows[y - 1]?.eachLiveCellInBounds(x, rules);
         this.rows[y].eachLiveCellAround(x, rules);
         this.rows[y + 1]?.eachLiveCellInBounds(x, rules);
@@ -177,7 +178,6 @@ class Grid {
         });
     }
 
-    // v2
     public flipCache(x: number, y: number) {
         this.rows[y].flipCache(x);
     }
@@ -269,10 +269,6 @@ describe('Game (callback for countNeighboursAt)', () => {
         });
     });
 });
-
-// TODO Counter Objeckt statt Callback bei Nachbar zählen
-// Idee: Statt Callback bei isAlive einfach den Counter übergeben
-// -> weniger Callback, weniger generisch, mehr Kopplung
 
 // TODO alle Callbacks prüfen ob wir sie brauchen
 
