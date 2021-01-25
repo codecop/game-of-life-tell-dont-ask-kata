@@ -88,13 +88,14 @@ Constraint "Tell Don't Ask"
 
 * 2h
 * bug in tick - State vergessen
+* letzte Callbacks entfernt.
 
 ### TDA 4
 
 * Copy ist irgendwie standard. Aber mit TDA geht es nicht gut.
 * Ist `copy` gegen die Natur von TDA?
 * Memento ist eine andere Methode und befolt Kapselung.
-Counter Objeckt statt Callback bei Nachbar zählen => weniger Callback, weniger generisch, mehr Kopplung
+* Counter Objeckt statt Callback bei Nachbar zählen => weniger Callback, weniger generisch, mehr Kopplung
 * Tests behindern uns beim groben Umstrukturieren.
 * Wir entfernen Callbacks und erhöhen Kopplung auf konkrete Typen.
 * Benannte konkrete Functions fühlen sich besser an als anonymer Callback.
@@ -112,4 +113,22 @@ Counter Objeckt statt Callback bei Nachbar zählen => weniger Callback, weniger 
 
 ### Retro 4
 
-*
+* Roter Test hilft schneller zum Reinkommen.
+* Zu wenig gewechselt?
+* 3 grössere Sachen gemacht.
+* Peter artikuliert Ziel als Navigator, manchmal detailliert.
+* Gemschmeidig. Flow.
+* 2 Ideen die es deutlich einfacher/direkter gemacht haben, spannend.
+* Immer Umwege bis die schöne Lösung da war. Basierend auf Gefühl...
+
+### Learnings
+
+* 8 Stunden
+* Wir denken wenig über Verantwortlichkeit von Daten.
+* Bottom up schwer. In 4. Session noch geändert.
+* Wäre outside-in besser? Passt das besser zu TDA und OO?
+* Bottom up ist ca. functional, ich bauen Functions und compose.
+* Es geht nicht nur um void, es geht um State verstecken.
+* Challenge: Koordinate?
+* Am Anfang hat es Funktional ausgesehen. (CPS Style)
+* Am Ende stark OO, "keine Argumente" ausser Coordinaten.
