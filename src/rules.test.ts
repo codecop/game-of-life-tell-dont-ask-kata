@@ -32,7 +32,10 @@ describe('rules (1. start rules)', () => {
 
 // Column manages state of cell.
 class Column {
+    private cachedState: Cell;
+
     constructor(private state: Cell) {
+        this.cachedState = Cell.Dead;
     }
 
     public update(newState: Cell): void {
@@ -56,6 +59,14 @@ class Column {
 
     public applyRules(count: number) {
         applyRules(this.state, count, (newState) => this.state = newState);
+    }
+
+    public applyRulesCache(count: number) {
+        applyRules(this.state, count, (newState) => this.cachedState = newState);
+    }
+
+    public flipCache() {
+        this.state = this.cachedState;
     }
 }
 
@@ -133,6 +144,14 @@ class Row {
             this.columns[x].update(Cell.Alive)
         })
     }
+
+    public applyRulesCache(x: number, count: number) {
+        this.columns[x].applyRulesCache(count);
+    }
+
+    public flipCache(x: number) {
+        this.columns[x].flipCache();
+    }
 }
 
 // Grid manages list of Rows and delegates to rows. = First Class Collection
@@ -182,10 +201,20 @@ class Grid {
         row.copyInto(this.rows[y]);
     }
 
-    // v2 ... same as v1 :-(
+    // v1.1 ... same as v1 :-(
     // applyRulesInto(x: number, y: number, count: number, newGrid: Grid) {
     //    newGrid.applyRulesFrom(x, y, count, this.rows[y]);
     // }
+
+    // v2
+    public applyRulesCache(x: number, y: number, count: number): void {
+        this.rows[y].applyRulesCache(x, count);
+    }
+
+    public flipCache(x: number, y: number) {
+        this.rows[y].flipCache(x);
+    }
+
 }
 
 describe('grid (3. countNeighbours will be used in rules)', () => {
@@ -277,8 +306,7 @@ class Game {
         this.grid.update(x, y, Cell.Alive);
     }
 
-    public tick() {
-        // v1
+    public tick1() {
         const newGrid = new Grid(this.sizeX, this.sizeY);
         this.grid.copyInto(newGrid);
 
@@ -292,6 +320,22 @@ class Game {
         }
 
         this.grid = newGrid;
+    }
+
+    public tickCache() {
+        for (let y = 0; y < this.sizeY; y++) {
+            for (let x = 0; x < this.sizeX; x++) {
+                this.grid.countLivingNeighboursAt(x, y, (count) => {
+                    this.grid.applyRulesCache(x, y, count);
+                });
+            }
+        }
+
+        for (let y = 0; y < this.sizeY; y++) {
+            for (let x = 0; x < this.sizeX; x++) {
+                this.grid.flipCache(x, y);
+            }
+        }
     }
 
     public print(cb: (output: string) => void): void {
@@ -342,7 +386,25 @@ describe('Game (callback for countNeighboursAt)', () => {
         game.seed(1, 1);
         game.seed(1, 2);
 
-        game.tick();
+        game.tick1();
+
+        game.print(output => {
+            expect(output).equals(
+                '   \n' +
+                'XXX\n' +
+                '   \n'
+            );
+            cb();
+        });
+    });
+
+    it('iterates the board (version 3 with cached state)', cb => {
+        const game = new Game(3, 3);
+        game.seed(1, 0);
+        game.seed(1, 1);
+        game.seed(1, 2);
+
+        game.tickCache();
 
         game.print(output => {
             expect(output).equals(
@@ -354,10 +416,6 @@ describe('Game (callback for countNeighboursAt)', () => {
         });
     });
 });
-
-
-
-// TODO bug in final test?
 
 // TODO Counter Objeckt statt Callback bei Nachbar zählen
 // Idee: Statt Callback bei isAlive einfach den Counter übergeben
