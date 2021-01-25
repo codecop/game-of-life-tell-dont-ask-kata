@@ -4,6 +4,12 @@ enum Cell {
     Alive, Dead,
 }
 
+enum NextGeneration {
+    Dead,
+    StaysAlive,
+    Born
+}
+
 class Rules {
     private neighbourCount = 0;
 
@@ -11,30 +17,44 @@ class Rules {
         this.neighbourCount++;
     }
 
-    public apply(cs: Cell, cb: (nextcell: Cell) => void): void {
-        const willLive = this.neighbourCount === 3 || (this.neighbourCount === 2 && cs === Cell.Alive);
-        cb(willLive ? Cell.Alive : Cell.Dead);
+    public apply(column: Column): void {
+        let nextGeneration;
+        if (this.neighbourCount === 3) {
+            nextGeneration = NextGeneration.Born;
+        } else if (this.neighbourCount === 2) {
+            nextGeneration = NextGeneration.StaysAlive;
+        } else {
+            nextGeneration = NextGeneration.Dead;
+        }
+        column.applyRules(nextGeneration);
     }
 }
 
 describe('rules (1. start rules)', () => {
 
     it('a cell without neighbours dies', (cb) => {
+        const mockColumn = {
+            applyRules: (nextGeneration: NextGeneration) => {
+                expect(nextGeneration).to.equals(NextGeneration.Dead)
+                cb();
+            }
+        } as unknown as Column;
         const rules = new Rules();
-        rules.apply(Cell.Alive, (nextcell) => {
-            expect(nextcell).to.equal(Cell.Dead);
-            cb();
-        });
+        rules.apply(mockColumn);
     });
 
     it('an alive cell with two neighbours stays alive', (cb) => {
+        const mockColumn = {
+            applyRules: (nextGeneration: NextGeneration) => {
+                expect(nextGeneration).to.equals(NextGeneration.StaysAlive)
+                cb();
+            }
+        } as unknown as Column;
+
         const rules = new Rules();
         rules.incrementNeighbourCount();
         rules.incrementNeighbourCount();
-        rules.apply(Cell.Alive, (nextcell) => {
-            expect(nextcell).to.equal(Cell.Alive);
-            cb();
-        });
+        rules.apply(mockColumn);
     });
 
     // TODO more tests, not related to TDA
@@ -42,10 +62,9 @@ describe('rules (1. start rules)', () => {
 
 // Column manages state of cell.
 class Column {
-    private cachedState: Cell;
+    private cachedState: Cell = Cell.Dead;
 
     constructor(private state: Cell) {
-        this.cachedState = Cell.Dead;
     }
 
     public update(newState: Cell): void {
@@ -58,8 +77,13 @@ class Column {
         }
     }
 
-    public applyRulesCache(rules: Rules): void {
-        rules.apply(this.state, (newState) => this.cachedState = newState);
+    applyRules(nextGeneration: NextGeneration) {
+        const willLive = nextGeneration === NextGeneration.Born || nextGeneration === NextGeneration.StaysAlive && this.state === Cell.Alive;
+        if (willLive) {
+            this.cachedState = Cell.Alive;
+        } else {
+            this.cachedState = Cell.Dead;
+        }
     }
 
     public flipCache(): void {
@@ -73,7 +97,6 @@ class Column {
             cb(' ');
         }
     }
-
 }
 
 describe('cell (2. callback for rules)', () => {
@@ -139,7 +162,7 @@ class Row {
     }
 
     public applyRulesCache(x: number, rules: Rules): void {
-        this.columns[x].applyRulesCache(rules);
+        rules.apply(this.columns[x]);
     }
 
     public flipCache(x: number): void {
